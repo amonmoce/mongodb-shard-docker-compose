@@ -4,51 +4,30 @@ services:
   ## Config Servers
   config01:
     image: mongo
-    command: mongod --port 27017 --configsvr --replSet configserver --noprealloc --smallfiles --oplogSize 16
+    command: mongod --port 27017 --configsvr --replSet configserver --dbpath /data/db
     volumes:
       - ./scripts:/scripts
+      - ./mongocluster/config01:/data/db
   config02:
     image: mongo
-    command: mongod --port 27017 --configsvr --replSet configserver --noprealloc --smallfiles --oplogSize 16
+    command: mongod --port 27017 --configsvr --replSet configserver --dbpath /data/db
     volumes:
       - ./scripts:/scripts
-  config03:
-    image: mongo
-    command: mongod --port 27017 --configsvr --replSet configserver --noprealloc --smallfiles --oplogSize 16
-    volumes:
-      - ./scripts:/scripts
+      - ./mongocluster/config02:/data/db
 
   ## Shards
   shard01a:
     image: mongo
-    command: mongod --port 27018 --shardsvr --replSet shard01 --noprealloc --smallfiles --oplogSize 16
+    command: mongod --port 27017 --shardsvr --replSet shard01 --dbpath /data/db
     volumes:
       - ./scripts:/scripts
+      - ./mongocluster/shard01a:/data/db
   shard01b:
     image: mongo
-    command: mongod --port 27018 --shardsvr --replSet shard01 --noprealloc --smallfiles --oplogSize 16
+    command: mongod --port 27017 --shardsvr --replSet shard01 --dbpath /data/db
     volumes:
       - ./scripts:/scripts
-  shard02a:
-    image: mongo
-    command: mongod --port 27019 --shardsvr --replSet shard02 --noprealloc --smallfiles --oplogSize 16
-    volumes:
-      - ./scripts:/scripts
-  shard02b:
-    image: mongo
-    command: mongod --port 27019 --shardsvr --replSet shard02 --noprealloc --smallfiles --oplogSize 16
-    volumes:
-      - ./scripts:/scripts
-  shard03a:
-    image: mongo
-    command: mongod --port 27020 --shardsvr --replSet shard03 --noprealloc --smallfiles --oplogSize 16
-    volumes:
-      - ./scripts:/scripts
-  shard03b:
-    image: mongo
-    command: mongod --port 27020 --shardsvr --replSet shard03 --noprealloc --smallfiles --oplogSize 16
-    volumes:
-      - ./scripts:/scripts
+      - ./mongocluster/shard01b:/data/db
 
   ## Router
   router:
@@ -58,13 +37,9 @@ services:
       - "27017:27017"
     volumes:
       - ./scripts:/scripts
+      - ./mongocluster/router:/data/db
     depends_on:
       - config01
       - config02
-      - config03
       - shard01a
       - shard01b
-      - shard02a
-      - shard02b
-      - shard03a
-      - shard03b
