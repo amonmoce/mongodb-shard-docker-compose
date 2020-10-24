@@ -4,12 +4,14 @@ services:
   ## Config Servers
   config01:
     image: mongo
+    container_name: config01
     command: mongod --port 27017 --configsvr --replSet configserver --dbpath /data/db
     volumes:
       - ./scripts:/scripts
       - ./mongocluster/config01:/data/db
   config02:
     image: mongo
+    container_name: config02
     command: mongod --port 27017 --configsvr --replSet configserver --dbpath /data/db
     volumes:
       - ./scripts:/scripts
@@ -18,12 +20,14 @@ services:
   ## Shards
   shard01a:
     image: mongo
+    container_name: shard01a
     command: mongod --port 27017 --shardsvr --replSet shard01 --dbpath /data/db
     volumes:
       - ./scripts:/scripts
       - ./mongocluster/shard01a:/data/db
   shard01b:
     image: mongo
+    container_name: shard01b
     command: mongod --port 27017 --shardsvr --replSet shard01 --dbpath /data/db
     volumes:
       - ./scripts:/scripts
@@ -32,7 +36,8 @@ services:
   ## Router
   router:
     image: mongo
-    command: mongos --port 27017 --configdb configserver/config01:27017,config02:27017,config03:27017 --bind_ip_all
+    container_name: router
+    command: mongos --port 27017 --configdb configserver/config01:27017,config02:27017 --bind_ip_all
     ports:
       - "27017:27017"
     volumes:
